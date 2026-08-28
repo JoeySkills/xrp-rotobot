@@ -1,0 +1,4 @@
+FROM quay.io/redhat-user-workloads/jetpack-for-rhel-tenant/rhel-98-bootc:latest
+
+RUN dnf -y install NetworkManager-wifi lorax python3-pip usbutils && dnf clean all
+
