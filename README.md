@@ -1,5 +1,7 @@
 # xrp-rotobot
 
+This is my project to control an [XRP Robot](https://introtoroboticsv2.readthedocs.io/en/latest/index.html) using an NVIDIA [Jetson Orin Nano](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/index.html). This implementation uses a USB connection from the Jetson to the controller board.
+
 ## USB Remote Control Architecture
 
 The repository provides a client-server architecture for controlling the XRP robot from a host computer (e.g., PC or SBC) over USB serial:
@@ -19,9 +21,8 @@ The repository provides a client-server architecture for controlling the XRP rob
 
    # Soft-reboot the board to start the service
    mpremote reset
-   ```
-
-2. **Run the [`usb_controller.py`](usb_controller.py) script interactively to test connectivity:
+   ```   
+2. **Run the [`usb_controller.py`](usb_controller.py) script interactively to test connectivity:**
    ```bash
    # Activate virtual environment
    source .venv/bin/activate
