@@ -29,9 +29,6 @@ def command(name):
         return func
     return decorator
 
-# Last transcribed text received from the host via the TEXT command
-last_heard = ""
-
 @command("STOP")
 def cmd_stop():
     """Terminate the program cleanly."""
@@ -76,16 +73,6 @@ def cmd_imu():
     heading = imu.get_heading()
     yaw = imu.get_yaw()
     return f"{pitch:.2f},{heading:.2f},{yaw:.2f}"
-
-@command("TEXT")
-def cmd_text(*parts):
-    """Store transcribed host text: TEXT,<transcript> (commas preserved)."""
-    global last_heard
-    text = ",".join(parts).strip()
-    if not text:
-        return "OK"
-    last_heard = text
-    return text
 
 @command("DRIVE")
 def cmd_drivetrain(action, *args):

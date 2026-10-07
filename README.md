@@ -90,7 +90,7 @@ python look_around.py
 | **"Red Light"** | Stop the motors | `DRIVE,STOP` |
 | **"Green Light"** | Drive forward | `DRIVE,EFFORT,0.5,0.5` |
 
-Add more commands by adding entries to the `COMMANDS` map. (The robot-side `TEXT` command remains available for other scripts; it stores the transcript in `last_heard`.)
+Add more commands by adding entries to the `COMMANDS` map. The feature uses only the existing stable wire commands (`DRIVE,STOP`, `DRIVE,EFFORT`), so no robot-side changes are required.
 
 **Setup (Jetson Orin Nano / JetPack):**
 
@@ -135,7 +135,6 @@ python voice_control.py
 | **Ping / Handshake** | `bot.ping()` | `PING` | `ACK:PING,PONG` |
 | **Rangefinder** | `bot.read_rangefinder()` | `RF` | `ACK:RF,<distance_cm>` |
 | **IMU** | `bot.send_command("IMU")` | `IMU` | `ACK:IMU,<pitch>,<heading>,<yaw>` |
-| **Speech-to-Text** | `bot.send_command("TEXT,<text>")` | `TEXT,<transcript>` | `ACK:TEXT,<transcript>` |
 | **Stop Motors** | `bot.drive_stop()` | `DRIVE,STOP` | `ACK:DRIVE,STOP` |
 | **Motor Effort** | `bot.drive_effort(left, right)` | `DRIVE,EFFORT,<l>,<r>` | `ACK:DRIVE,EFFORT` |
 | **Speed (PID)** | `bot.drive_speed(left, right)` | `DRIVE,SPEED,<l>,<r>` | `ACK:DRIVE,SPEED` |
