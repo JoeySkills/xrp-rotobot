@@ -9,6 +9,7 @@ The repository provides a client-server architecture for controlling the XRP rob
 * **[`usb_control.py`](usb_control.py)**: MicroPython RPC server running on the robot's RP2040 microcontroller. It asynchronously listens on USB serial (`sys.stdin`) for commands and drives the motors, reads the ultrasonic rangefinder/IMU, controls servos, and toggles LEDs.
 * **[`usb_controller.py`](usb_controller.py)**: Host-side Python library providing the `XRPController` client class. It manages serial connectivity (`/dev/ttyACM0`), handshakes on connect, flushes stale buffers, and sends commands with automatic response handling.
 * **[`look_around.py`](look_around.py)**: Example autonomous application combining computer vision (YOLO) with robot motion control via `XRPController`.
+* **[`voice_control.py`](voice_control.py)**: Host-side voice listener that transcribes microphone audio with [Vosk](https://alphacephei.com/vosk/) and streams each utterance to the robot as `TEXT` commands via `XRPController`.
 
 ---
 
@@ -80,6 +81,46 @@ python look_around.py
 
 ---
 
+### Voice Control: `voice_control.py`
+
+[`voice_control.py`](voice_control.py) listens on the host microphone, transcribes speech offline with [Vosk](https://alphacephei.com/vosk/), and sends each recognized utterance to the robot over USB serial. The robot stores the latest transcript in `last_heard` and echoes it back in its response.
+
+**Setup (Jetson Orin Nano / JetPack):**
+
+```bash
+# PortAudio backend for sounddevice
+sudo apt install -y libportaudio2
+
+# Note: JetPack's root filesystem is read-only. Keep the venv and model on a
+# writable partition (e.g., your home directory).
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Download and unzip the small English Vosk model (~40 MB, real-time on the Orin Nano)
+wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+unzip vosk-model-small-en-us-0.15.zip
+```
+
+**Run:**
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Launch the voice listener
+python voice_control.py
+```
+
+* **Behavior**:
+  * Captures 16 kHz mono audio from the default input device.
+  * When Vosk detects the end of an utterance, the transcript is sent as `TEXT,<transcript>`; commas inside the transcript are preserved by the protocol.
+  * Each transcript is echoed back as `ACK:TEXT,<transcript>`.
+* **Stopping**: Press `Ctrl+C` in the terminal. The `finally:` block calls `bot.drive_stop()` and closes the audio stream.
+* **Model**: Set `VOSK_MODEL` to point at a different model directory if needed (e.g., `vosk-model-en-us-0.22` for higher accuracy).
+
+---
+
 ### Command Protocol Reference
 
 | Action | Host Python Method | Wire Command | Robot Response |
@@ -87,6 +128,7 @@ python look_around.py
 | **Ping / Handshake** | `bot.ping()` | `PING` | `ACK:PING,PONG` |
 | **Rangefinder** | `bot.read_rangefinder()` | `RF` | `ACK:RF,<distance_cm>` |
 | **IMU** | `bot.send_command("IMU")` | `IMU` | `ACK:IMU,<pitch>,<heading>,<yaw>` |
+| **Speech-to-Text** | `bot.send_command("TEXT,<text>")` | `TEXT,<transcript>` | `ACK:TEXT,<transcript>` |
 | **Stop Motors** | `bot.drive_stop()` | `DRIVE,STOP` | `ACK:DRIVE,STOP` |
 | **Motor Effort** | `bot.drive_effort(left, right)` | `DRIVE,EFFORT,<l>,<r>` | `ACK:DRIVE,EFFORT` |
 | **Speed (PID)** | `bot.drive_speed(left, right)` | `DRIVE,SPEED,<l>,<r>` | `ACK:DRIVE,SPEED` |
