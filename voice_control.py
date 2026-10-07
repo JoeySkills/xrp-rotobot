@@ -7,6 +7,27 @@ import sounddevice as sd
 from vosk import Model, KaldiRecognizer
 from usb_controller import XRPController
 
+# Voice commands and the actions they trigger (matched case-insensitively)
+COMMANDS = {
+    "red light": lambda bot: bot.drive_stop(),
+    "green light": lambda bot: bot.drive_effort(0.5, 0.5),
+}
+
+
+def dispatch_command(bot, text):
+    """Perform the robot action for a recognized utterance.
+
+    Returns the wire response, or None if the text matched no command.
+    """
+    text = text.strip().lower()
+    if not text:
+        return None
+    action = COMMANDS.get(text)
+    if action is None:
+        return None
+    return action(bot)
+
+
 # Audio configuration (Vosk requires 16 kHz mono 16-bit PCM)
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 3200  # 200 ms per chunk
@@ -58,9 +79,13 @@ with XRPController() as bot:
                 if recognizer.AcceptWaveform(bytes(data)):
                     # Utterance finished; Result() resets the recognizer
                     text = json.loads(recognizer.Result()).get("text", "").strip()
-                    if text:
-                        print(f"Heard: {text}")
-                        resp = bot.send_command(f"TEXT,{text}")
+                    if not text:
+                        continue
+                    print(f"Heard: {text}")
+                    resp = dispatch_command(bot, text)
+                    if resp is None:
+                        print("  (no matching command)")
+                    else:
                         print(f"  <- {resp}")
     finally:
         # Cut off the motors in case the robot was left driving
