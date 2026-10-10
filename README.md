@@ -9,6 +9,7 @@ The repository provides a client-server architecture for controlling the XRP rob
 * **[`usb_control.py`](usb_control.py)**: MicroPython RPC server running on the robot's RP2040 microcontroller. It asynchronously listens on USB serial (`sys.stdin`) for commands and drives the motors, reads the ultrasonic rangefinder/IMU, controls servos, and toggles LEDs.
 * **[`usb_controller.py`](usb_controller.py)**: Host-side Python library providing the `XRPController` client class. It manages serial connectivity (`/dev/ttyACM0`), handshakes on connect, flushes stale buffers, and sends commands with automatic response handling.
 * **[`look_around.py`](look_around.py)**: Example autonomous application combining computer vision (YOLO) with robot motion control via `XRPController`.
+* **[`follow_person.py`](follow_person.py)**: Uses YOLO to track and follow people around.
 
 ---
 
