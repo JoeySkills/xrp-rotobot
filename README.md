@@ -10,6 +10,7 @@ The repository provides a client-server architecture for controlling the XRP rob
 * **[`usb_controller.py`](usb_controller.py)**: Host-side Python library providing the `XRPController` client class. It manages serial connectivity (`/dev/ttyACM0`), handshakes on connect, flushes stale buffers, and sends commands with automatic response handling.
 * **[`look_around.py`](look_around.py)**: Example autonomous application combining computer vision (YOLO) with robot motion control via `XRPController`.
 * **[`voice_control.py`](voice_control.py)**: Host-side voice listener that transcribes microphone audio with [Vosk](https://alphacephei.com/vosk/) and maps recognized commands to robot actions (e.g., "Red Light" stops, "Green Light" drives forward) via `XRPController`.
+* **[`follow_person.py`](follow_person.py)**: Uses YOLO to track and follow people around.
 
 ---
 
@@ -94,10 +95,9 @@ Add more commands by adding entries to the `COMMANDS` map. The feature uses only
 
 **Setup (Jetson Orin Nano / JetPack):**
 
-```bash
-# PortAudio backend for sounddevice
-sudo apt install -y libportaudio2
+Requires PortAudio - install as an operating system package.
 
+```bash
 # Note: JetPack's root filesystem is read-only. Keep the venv and model on a
 # writable partition (e.g., your home directory).
 python3 -m venv .venv
